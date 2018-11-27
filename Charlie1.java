@@ -156,7 +156,7 @@ public class Charlie1 {
 		float[] sample_sonic = new float[this.sonic.sampleSize()];
 		this.sonic.fetchSample(sample_sonic, 0);
 		this.prevt = System.nanoTime();
-		while (sample_sonic[0] > d && this.distToGoal(this.x, this.y) > .20 && !Button.ENTER.isDown()) {
+		while (sample_sonic[0] > d && !this.inRange(1.8, 1.8, .2) && !Button.ENTER.isDown()) {
 			this.moveForwardBoth();
 			sonic.fetchSample(sample_sonic, 0);
 			this.update(speed, speed);
@@ -715,7 +715,7 @@ public class Charlie1 {
 
 	// Sarah Stuff below
 	public boolean inRange(double x, double y, double range) {
-		return this.x < x + range && this.x > x - range && this.y < y + range && this.y < y + range;
+		return this.x < x + range && this.x > x - range && this.y < y + range && this.y > y - range;
 	}
 
 	public boolean returnedToHP() {
@@ -736,14 +736,14 @@ public class Charlie1 {
 	public void bug2() {
 
 		// while distance to goal is larger than 15 cm
-		while (!Button.ENTER.isDown() && this.inRange(1.8, 1.8, .2)) {
+		while (!Button.ENTER.isDown() && !this.inRange(1.8, 1.8, .2)) {
 
 			this.rotateToMLine();
 			// CALL move mline till sense
 			this.moveTillSense(.10);
 			// if move till sense exited due to proximity to goal need to stop so check and
 			// break
-			if (this.inRange(1.8, 1.8, .25)) {
+			if (this.inRange(1.8, 1.8, .20)) {
 				break;
 			}
 			// TURN RIGHT
