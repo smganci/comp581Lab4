@@ -19,7 +19,7 @@ import lejos.utility.Delay;
  * Sarah Ganci (720510446)
  * */
 
-public class Charlie {
+public class Charlie1 {
 	// components
 	private EV3LargeRegulatedMotor motorL;
 	private EV3LargeRegulatedMotor motorR;
@@ -60,7 +60,7 @@ public class Charlie {
 	// backup if dead reckoning sucks
 	private float gheading;
 
-	public Charlie() {
+	public Charlie1() {
 		this.motorL = new EV3LargeRegulatedMotor(MotorPort.B);
 		this.motorR = new EV3LargeRegulatedMotor(MotorPort.C);
 		this.motorM = new EV3MediumRegulatedMotor(MotorPort.A);
@@ -156,8 +156,7 @@ public class Charlie {
 		float[] sample_sonic = new float[this.sonic.sampleSize()];
 		this.sonic.fetchSample(sample_sonic, 0);
 		this.prevt = System.nanoTime();
-		while (sample_sonic[0] > d && this.distToGoal(this.x, this.y) > .20 && !Button.ENTER.isDown()
-				&& !this.frontBump()) {
+		while (sample_sonic[0] > d && this.distToGoal(this.x, this.y) > .20 && !Button.ENTER.isDown()) {
 			this.moveForwardBoth();
 			sonic.fetchSample(sample_sonic, 0);
 			this.update(speed, speed);
@@ -447,97 +446,6 @@ public class Charlie {
 		return sample_touchL[0] != 0;
 	}
 
-//	public boolean frontBump() {
-//		float[] sample_touchR = new float[touchR.sampleSize()];
-//		touchR.fetchSample(sample_touchR, 0);
-//		return sample_touchR[0] != 0;
-//	}
-
-	public void trace() {
-		// 1: take a valid reading from sonic
-		float sonic = this.sonicSense();
-
-		// 2: set origin, prevt, and initial speeds
-		this.x = 0;
-		this.y = 0;
-		this.theta = 0;
-		this.setgHeading();
-		// set first prevt
-		this.prevt = System.nanoTime();
-		double startTime = System.nanoTime();
-		float bs = 180;
-		this.setBothSpeed(bs);
-		this.syncMotors();
-		this.moveForwardBoth();
-
-//		System.out.println((System.nanoTime() - startTime > 30 * Math.pow(10, 9)));
-
-		// 3: loop till return to origin
-		while (!Button.ENTER.isDown()
-				&& !(withinRange(.15, .15) && (System.nanoTime() - startTime > 30 * Math.pow(10, 9)))) {
-			// 4: update x, y, theta
-			this.update(this.motorL.getSpeed(), this.motorR.getSpeed());
-
-			// 4: check to see if wall is bumped
-			if (this.frontBump()) {
-//				System.out.println("front bump");
-				this.update(this.motorL.getSpeed(), this.motorR.getSpeed());
-				this.stopBothInstant();
-				// 4.1: back up body length
-				this.moveBackwardDist(0.15);
-//				x = x - .15 * Math.cos(this.theta);
-//				y = y - .15 * Math.sin(this.theta);
-				// 4.3: turn
-				this.rotateRight(105);
-
-				// 4.4: move forward
-				this.moveForwardBoth();
-				this.setBothSpeed(bs);
-
-				// 4.5: continue on to next iteration of big loop
-				continue;
-			} else if (this.leftBump()) {
-//				System.out.println("left bump");
-				this.setDiffSpeeds(270, 180);
-				continue;
-			}
-
-			double dbuff = .08;
-			double d1 = 0.05 + dbuff;
-			double d2 = 0.12 + dbuff;
-			double d3 = 0.14 + dbuff;
-			double d4 = .16 + dbuff;
-			double d5 = .18 + dbuff;
-			double d6 = .25 + dbuff;
-			if (sonic <= d1) {
-				// Option 1: way too close -- move to the right fast
-				this.setDiffSpeeds(270, 180);
-			} else if (sonic < d2) {
-				// Option 2: way too close -- move to the right fast
-				this.setDiffSpeeds(240, 180);
-			} else if (sonic < d3) {
-				// Option 3: a little to close to wall -- adjust right a little
-				this.setDiffSpeeds(210, 180);
-			} else if (sonic >= d3 && sonic <= d4) {
-				// Option 4: just right -- set wheels to same speed and move on forward
-				this.setBothSpeed(180);
-			} else if (sonic > d4 && sonic <= d5) {
-				// Option 5: a little too far from wall -- move left slow
-				this.setDiffSpeeds(180, 210);
-			} else if (sonic > d5 && sonic <= d6) {
-				// Option 6: a little too far from wall -- move left slow
-				this.setDiffSpeeds(180, 240);
-			} else { // .2
-				// Option 7: way too far -- move to the left fast
-				this.setDiffSpeeds(180, 270);
-			}
-			sonic = this.sonicSense();
-		}
-		this.stopBothInstant();
-		this.stopSync();
-
-	}
-
 	/*
 	 * Name: sonicRotateSense in: none out: float array holding 3 sensed distance
 	 * values
@@ -657,9 +565,9 @@ public class Charlie {
 		System.out.println("x: " + this.x + ", y: " + this.y + ", theta: " + this.theta);
 	}
 
-	public boolean withinRange(double x, double y) {
-		return ((this.x < x && this.x >= 0 - x) && (this.y < y && this.y > 0 - y));
-	}
+//	public boolean withinRange(double x, double y) {
+//		return ((this.x < x && this.x >= 0 - x) && (this.y < y && this.y > 0 - y));
+//	}
 
 //	public void returnToStart() {
 //		// Turn towards goal
@@ -739,6 +647,8 @@ public class Charlie {
 	// Out: none
 	// rotate in place to the angle of the m-line
 	public void rotateToMLine() {
+		System.out.println("Rotating toward the mline");
+		System.out.println("Starting at angle:" + this.theta);
 		if (this.theta > this.mLineAngle + Math.PI) {
 //			System.out.println("Rotate Left");
 			turnInPlaceLeft(radiansToDegrees(2 * Math.PI - this.theta + this.mLineAngle));
@@ -824,19 +734,16 @@ public class Charlie {
 	}
 
 	public void bug2() {
-		this.rotateSonic(-10);
 
 		// while distance to goal is larger than 15 cm
-		while (!Button.ENTER.isDown() && this.distToGoal(this.x, this.y) > .20) {
-			// only if path is clear, rotate towards goal on mline and movets
-			// TODO: if (canMoveMl()) {
-			// CALL turn toward goal on mline
-			this.rotateToMLine();
+		while (!Button.ENTER.isDown() && this.inRange(1.8, 1.8, .2)) {
 
+			this.rotateToMLine();
 			// CALL move mline till sense
 			this.moveTillSense(.10);
-			// TODO: need to check to see if move till sense reached goal
-			if (this.distToGoal(this.x, this.y) < .25) {
+			// if move till sense exited due to proximity to goal need to stop so check and
+			// break
+			if (this.inRange(1.8, 1.8, .25)) {
 				break;
 			}
 			// TURN RIGHT
@@ -850,32 +757,33 @@ public class Charlie {
 			// CALL trace till mline
 			this.tracetmline();
 		}
-		goToGoal();
-		System.out.println("X: " + this.x + "Y : " + this.y);
+		System.out.println("go to goal");
+		this.printPos();
+		this.buttonWait();
+//		goToGoal();
 	}
 
 	public boolean tracetmline() {
 
 		// 1: take a valid reading from sonic
-
-		this.rotateSonic(-55);
+		this.rotateSonic(-70);
 		float sonic = this.sonicSense();
+		this.syncMotors();
 		float bs = 180;
 		this.setBothSpeed(bs);
-		this.syncMotors();
 		this.moveForwardBoth();
-		System.out.println(
-				!(this.inMLineRange() && this.distToGoal(this.x, this.y) < this.distToGoal(this.hitX, this.hitY)));
-		System.out.println(!returnedToHP());
-		System.out.println("about to enter loop");
-		//
+//		System.out.println(
+//				!(this.inMLineRange() && this.distToGoal(this.x, this.y) < this.distToGoal(this.hitX, this.hitY)));
+//		System.out.println(!returnedToHP());
+//		System.out.println("about to enter loop");
+//		//
 		double startTime = System.nanoTime();
-		System.out.println("time to wait: " + (System.nanoTime() - startTime > 3 * Math.pow(10, 9)));
+//		System.out.println("time to wait: " + (System.nanoTime() - startTime > 3 * Math.pow(10, 9)));
 		while (!Button.ENTER.isDown()
 				&& !(this.inMLineRange() && this.distToGoal(this.x, this.y) < this.distToGoal(this.hitX, this.hitY)
 						&& (System.nanoTime() - startTime > 3 * Math.pow(10, 9)))
 				&& !(returnedToHP() && (System.nanoTime() - startTime > 3 * Math.pow(10, 9)))) {
-			System.out.println("in loop");
+//			System.out.println("in loop");
 			this.update(this.motorL.getSpeed(), this.motorR.getSpeed());
 			if (this.frontBump()) {
 				System.out.println("front bump");
@@ -895,8 +803,7 @@ public class Charlie {
 				continue;
 			}
 
-			// added .03 to dbuff
-			double dbuff = .05;
+			double dbuff = .08;
 			double d1 = 0.05 + dbuff;
 			double d2 = 0.12 + dbuff;
 			double d3 = 0.14 + dbuff;
@@ -931,9 +838,9 @@ public class Charlie {
 		// stop motors and sychronization
 		this.stopBothInstant();
 		this.stopSync();
-		System.out.println("End loop");
+//		System.out.println("End loop");
 		// return sonic to original position
-		this.rotateSonic(55);
+		this.rotateSonic(70);
 		// if has returned to hitpoint, return false else true
 		boolean error = !returnedToHP();
 		this.hitX = this.x;
@@ -943,7 +850,9 @@ public class Charlie {
 	}
 
 	public void goToGoal() {
+		this.rotateToMLine();
 		moveForwardDist(distToGoal(this.x, this.y));
+		this.printPos();
 	}
 
 }
